@@ -7,7 +7,7 @@ Toko online brownies dan kerupuk lokal. Frontend statis disajikan oleh Cloudflar
 - Registrasi/login pelanggan dengan password PBKDF2 dan cookie HttpOnly.
 - Checkout hanya untuk pelanggan login; harga dan stok diperiksa ulang di API.
 - Pesanan disimpan di D1 lalu pembeli diarahkan ke WhatsApp.
-- Endpoint admin terproteksi untuk produk, stok, dan status pesanan.
+- Halaman admin di /admin.html untuk mengelola produk, stok, dan status pesanan.
 - Katalog diperbarui otomatis setiap 15 detik tanpa reload halaman.
 
 ## Setup
@@ -18,9 +18,6 @@ Toko online brownies dan kerupuk lokal. Frontend statis disajikan oleh Cloudflar
 5. Atur password admin: npx wrangler secret put ADMIN_PASSWORD
 6. Deploy: npx wrangler deploy
 
-## Produk awal
-Tambahkan produk melalui endpoint admin atau SQL D1. Harga dan stok harus diisi sesuai kondisi toko. Jangan gunakan data contoh sebagai harga jual nyata.
-
 ## Endpoint admin
 - POST /api/admin/login
 - GET /api/admin/products
@@ -30,7 +27,7 @@ Tambahkan produk melalui endpoint admin atau SQL D1. Harga dan stok harus diisi 
 - GET /api/admin/orders
 - PATCH /api/admin/orders/:id
 
-## Catatan
+## Catatan sebelum dipakai menerima pesanan nyata
 - Pendaftaran memakai nomor WhatsApp dan password, belum memakai OTP. Nomor pelanggan perlu dikonfirmasi manual oleh admin melalui WhatsApp.
 - Belum ada pembayaran online; pembayaran dibicarakan melalui WhatsApp.
 - Stok diperiksa saat checkout tetapi belum otomatis dikurangi saat order dibuat. Admin perlu memperbarui stok setelah pesanan dikonfirmasi.
