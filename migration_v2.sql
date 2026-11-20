@@ -1,0 +1,15 @@
+PRAGMA foreign_keys=ON;
+ALTER TABLE users ADD COLUMN warning_level INTEGER NOT NULL DEFAULT 0 CHECK(warning_level BETWEEN 0 AND 2);
+ALTER TABLE users ADD COLUMN account_status TEXT NOT NULL DEFAULT 'active' CHECK(account_status IN('active','suspended','banned'));
+ALTER TABLE users ADD COLUMN status_until INTEGER;
+ALTER TABLE sessions ADD COLUMN admin_id INTEGER;
+CREATE TABLE IF NOT EXISTS admins(id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,password_salt TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN('admin','super_admin')),active INTEGER NOT NULL DEFAULT 1,created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS moderation_logs(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,action TEXT NOT NULL CHECK(action IN('teguran','sp1','sp2','suspend','ban','restore')),reason TEXT NOT NULL,admin_id INTEGER,created_at INTEGER NOT NULL,until_at INTEGER,FOREIGN KEY(user_id) REFERENCES users(id),FOREIGN KEY(admin_id) REFERENCES admins(id));
+CREATE TABLE IF NOT EXISTS reviews(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,product_id INTEGER NOT NULL,rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),comment TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,UNIQUE(user_id,product_id),FOREIGN KEY(user_id) REFERENCES users(id),FOREIGN KEY(product_id) REFERENCES products(id));
+CREATE TABLE IF NOT EXISTS complaints(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,subject TEXT NOT NULL,message TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'waiting' CHECK(status IN('waiting','processing','answered','closed')),created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,FOREIGN KEY(user_id) REFERENCES users(id));
+CREATE TABLE IF NOT EXISTS complaint_replies(id INTEGER PRIMARY KEY AUTOINCREMENT,complaint_id INTEGER NOT NULL,sender_type TEXT NOT NULL CHECK(sender_type IN('customer','admin')),sender_id INTEGER,message TEXT NOT NULL,created_at INTEGER NOT NULL,FOREIGN KEY(complaint_id) REFERENCES complaints(id) ON DELETE CASCADE);
+CREATE TABLE IF NOT EXISTS recipes(id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT NOT NULL,description TEXT NOT NULL DEFAULT '',image_url TEXT NOT NULL DEFAULT '',kind TEXT NOT NULL DEFAULT 'menu' CHECK(kind IN('recipe','menu')),created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS activity_logs(id INTEGER PRIMARY KEY AUTOINCREMENT,admin_id INTEGER,action TEXT NOT NULL,detail TEXT NOT NULL DEFAULT '',created_at INTEGER NOT NULL,FOREIGN KEY(admin_id) REFERENCES admins(id));
+CREATE INDEX IF NOT EXISTS idx_moderation_user ON moderation_logs(user_id,created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reviews_product ON reviews(product_id,created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_complaints_user ON complaints(user_id,created_at DESC);
